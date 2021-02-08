@@ -3,6 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
+/*
+ * Нет обработки неверного ввода
+Выходит из программы, после окончания одного выражения,а не после команды выхода
+2x3 / 2 \ 3 - не расчитываються
+-3--2 - не расчитыаються в командом режиме
+ */
+
+//todo:bugfix
+
 namespace Level3_1
 {
 

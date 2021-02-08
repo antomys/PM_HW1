@@ -1,120 +1,126 @@
-﻿using System;
-using System.Linq.Expressions;
-using System.Security.AccessControl;
-using System.Text.RegularExpressions;
-
-namespace Level2_2
+﻿namespace Level2_2
 {
-    class Program
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text.RegularExpressions;
+    internal static class Program
     {
-        public static double Round(double r)
+        private static int Main(string[] args)
         {
-            //S=pi*r^2
-            double result = Math.PI*Math.Pow(r,2);
-            return result;
-        }
-        public static double Square(double a)
-        {
-            //S=a^2
-            double result = Math.Pow(a,2);
-            return result;
-        }
-        public static double Rect(double a, double b)
-        {
-            //S=ab
-            double result = a*b;
-            return result;
-        }
-        public static double Triangle(double a, double b, double c)
-        {
-            //Heron's Formulae
-            double p = (a + b + c) / 2.0;
-            double result = Math.Sqrt(p*(p-a)*(p-b)*(p-c));
-            return result;
-        }
-        static int Main(string[] args)
-        {
-            int[]range = new int[3];
+            
             if (args == null || args.Length == 0)
             {
-                try
-                {
-
-                    var value = 0;
-
-                    Console.WriteLine("Calculating S of \n" +
-                                      "Round,Square,Triangle and Rect.\n" +
-                                      "Volokhovych");
-                    Console.WriteLine(
-                        "NOTE: Input format: [name of figure],[first_paratemer],[second_parameter]\nExamples:\n" +
-                        "\"rect,2,5\"\n\"round,5\"\n\"triangle,4,2,6\"\n\"rect,10,12\"\nNOTE:Excessive parameters will be ignored!");
-                    var input = Console.ReadLine();
-                    string[] tokens = input.Split(',');
-                    var j = 0;
-                    for (var i = 1; i < tokens.Length; i++, j++)
-                    {
-                        if (Regex.Matches(tokens[i], @"[a-zA-Z-?`\-+*/{}|.<>]").Count > 0
-                            || Int32.TryParse(tokens[i], out value) && value < 0)
-                        {
-                            throw new ArgumentOutOfRangeException();
-                            return -200;
-                        }
-                        else
-                        {
-                            range[j] = Int32.Parse(tokens[i]);
-                        }
-
-                    }
-
-                    for (j = 0; j < range.Length; j++)
-                        if (range[j] <= 0 || range[j] > Int32.MaxValue)
-                            throw new IndexOutOfRangeException(($"{range[j]} is too big or small"));
-
-                    var output = Calculate(tokens[0], range);
-
-                }
-                catch (ArgumentOutOfRangeException e)
-                {
-                    Console.WriteLine($"Error in written form");
-                }
-                catch (IndexOutOfRangeException e)
-                {
-                    Console.WriteLine("Something is too big or small");
-                }
-
-
+                Greeting();
+                Mode();
             }
             else
             {
-                int[] input = new int[3];
-                var value = 0;
-                var j = 0;
-                for (int i = 1; i < args.Length; i++,j++)
-                {
-                    if (Regex.Matches(args[i], @"[a-zA-Z-?`\-+*/{}|.<>]").Count > 0 
-                    || Int32.TryParse(args[i],out value) && value < 0 || Int32.TryParse(args[i],out value) && value > Int32.MaxValue)
-                    {
-                        return -1;
-                    }
-                    else
-                    {
-                        input[j] = Int32.Parse(args[i]);
-                        if (input[j] <= 0 || input[j] >= Int32.MaxValue)
-                            return -1;
-                    }
-                }
-                return (int)Calculate(args[0], input);
+                Greeting();
+                return Mode(args);
             }
-
             return 0;
         }
 
-        private static double Calculate(string operation, int[] arguments)
+        private static void Greeting()
+        {
+            Console.WriteLine("Calculating S of \n" +
+                              "Round,Square,Triangle and Rect.\n" +
+                              "Volokhovych");
+            Console.WriteLine(
+                "NOTE: Input format: [name of figure],[first_parameter],[second_parameter]\nExamples:\n" +
+                "\"rect,2,5\"\n\"\"square,2\"\n\"round,5\"\n\"triangle,4,2,6\"\n\"rect,10,12\"\nNOTE:Excessive parameters will be ignored!");
+        }
+        
+        private static List<int> InputToList(IEnumerable<string> args)
+        {
+            return (from argument in args where CheckNumberInput(argument) select int.Parse(argument)).ToList();
+        }
+
+        private static void Mode()
+        {
+            while (true)
+            {
+                try
+                {
+                    var tokens = Console.ReadLine()?.Trim().Split(',');
+                    
+                    if (tokens != null && tokens[0].ToLower().Equals("exit"))
+                        return;
+                    
+                    if (tokens==null || tokens.Length < 2)
+                        throw new ArgumentOutOfRangeException($"Tokens are null or wrong length");
+                    
+                    
+                    var input = InputToList(tokens);
+
+                    var result = (int) Calculate(tokens[0], input);
+
+                    if (result == -1)
+                    {
+                        return;
+                    }
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    Console.WriteLine($"**Error in written form**\n");
+                }
+                catch (IndexOutOfRangeException)
+                {
+                    Console.WriteLine("**Something is too big or small**\n");
+                }
+            }
+        }
+        
+        private static int Mode(IReadOnlyList<string> args)
         {
             try
             {
 
+                var tokens = args;
+                    
+                if (tokens != null && tokens[0].ToLower().Equals("exit"))
+                    return -1;
+                    
+                if (tokens==null || tokens.Count < 2)
+                    throw new ArgumentOutOfRangeException($"Tokens are null or wrong length");
+                    
+                    
+                var input = InputToList(tokens);
+
+                var result = (int) Calculate(tokens[0], input);
+
+                if (result == -1)
+                {
+                    return -1;
+                }
+
+                return result;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                Console.WriteLine($"**Error in written form**\n");
+            }
+            catch (IndexOutOfRangeException)
+            {
+                Console.WriteLine("**Something is too big or small**\n");
+            }
+
+            return -500;
+        }
+
+        private static bool CheckNumberInput(string argument)
+        {
+            return Regex.Matches(argument, @"[a-zA-Z-?`\-+#1#{}|.<>]").Count <= 0 
+                   || int.TryParse(argument, out var value) && value > 0 && value < int.MaxValue;
+        }
+
+        private static double Calculate(string operation, IReadOnlyList<int> arguments)
+        {
+            try
+            {
                 var output = -500.0;
+                
                 switch (operation)
                 {
                     case "rect":
@@ -138,19 +144,42 @@ namespace Level2_2
                         Console.WriteLine("Unknown Operation. Try again.");
                         break;
                 }
-
-                if (output != -500)
-                    Console.WriteLine($"S of your {operation} is {output}");
+                Console.WriteLine($"S of your {operation} is {output}");
                 return output;
-
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine("Error occured. No triangle like that!");
-                Environment.Exit(1);
+                Console.WriteLine("Error occured. No figure like that!");
+                return -1;
             }
-
-            return 0;
         }
+
+        #region Figures
+      
+        private static double Round(double r)
+        {
+            //S=pi*r^2
+            return Math.PI*Math.Pow(r,2);
+        }
+        private static double Square(double a)
+        {
+            //S=a^2
+            return Math.Pow(a,2);
+        }
+
+        private static double Rect(double a, double b)
+        {
+            //S=ab
+            return a*b;
+        }
+
+        private static double Triangle(double a, double b, double c)
+        {
+            //Heron's Formulae
+            var p = (a + b + c) / 2.0;
+            return Math.Sqrt(p*(p-a)*(p-b)*(p-c));
+        }
+        
+        #endregion
     }
 }

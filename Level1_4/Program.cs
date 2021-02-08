@@ -1,45 +1,58 @@
 ﻿using System;
 using System.Collections;
-using System.Runtime.Remoting.Messaging;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Level1_4
 {
-    class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        private static void Main()
         {
             Calculate();
         }
 
         private static void Calculate()
         {
-            Console.WriteLine("Finding prime, Volokhovych\n"); //Todo: REFACTORING
-            Console.WriteLine("ENTER RANGE IN FORMAT:\n NUMBER,NUMBER");
-            var input = Console.ReadLine();
-            string[] tokens = input.Split(',');
-            int[] range = Array.ConvertAll<string, int>(tokens, int.Parse);
-            ArrayList primes = prime_num(range);
-            foreach(var prime in primes)
-                Console.Write($"{prime} ");
-
-        }
-        
-        private static ArrayList prime_num(int[] range)
-        {
-            ArrayList primes = new ArrayList();
-            for (long i = range[0]; i <= range[1]; i++)
+            Console.WriteLine("Finding prime, Volokhovych\n");
+            
+            while(true)
             {
-                bool isPrime = true;
-                for (long j = 2; j < i; j++)
+                Console.WriteLine("ENTER RANGE IN FORMAT:\nNUMBER,NUMBER");
+            
+                var input = Console.ReadLine();
+                if(string.IsNullOrEmpty(input))
+                    continue;
+                
+                var tokens = input.Split(',');
+                var range = Array.ConvertAll(tokens, int.Parse);
+
+                if(!IsRightInput(range))
                 {
-                    if (i % j == 0)
-                    {
-                        isPrime = false;
-                        break;
-                    }
+                    continue;
                 }
 
-                if (i == 1)
+                PrimeStart(range);
+                Console.WriteLine("\nPlease enter any key to exit......");
+                Console.ReadKey();
+                    break;
+            }   
+        }
+        
+        private static ArrayList prime_num(IReadOnlyList<int> range)
+        {
+            var primes = new ArrayList();
+            for (long i = range[0]; i <= range[1]; i++)
+            {
+                var isPrime = true;
+                for (long j = 2; j < i; j++)
+                {
+                    if (i % j != 0) continue;
+                    isPrime = false;
+                    break;
+                }
+
+                if (i == 1 || i == 0)
                     isPrime = false;
                 if (isPrime)
                 {
@@ -47,6 +60,25 @@ namespace Level1_4
                 }
             }
             return primes;
+        }
+
+        private static void PrimeStart(IReadOnlyList<int> range)
+        {
+            var primes = prime_num(range);
+            
+            if (primes.Count < 1)
+            {
+                Console.WriteLine("There are no primes in this range.");
+            }
+            else
+            {
+                foreach(var prime in primes)
+                    Console.Write($"Found primes: {prime} ");
+            }
+        }
+        private static bool IsRightInput(IEnumerable<int> range)
+        {
+            return range.All(t => t > 0);
         }
     }
 }

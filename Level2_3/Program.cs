@@ -2,11 +2,18 @@
 using System.IO;
 using System.Text.RegularExpressions;
 
+/*
+ * Непонятно, как вводить данные + ожидалось, что каждый элемент массива мы будем вводить по очереди
+ *   Нет обработки неверно введёных данных
+ *   Неправильно считается Min
+ *   Неправильно считается Standart Deviation
+ */
+    //todo:bugfix
 namespace Level2_3
 {
-    class Program
+    internal static class Program
     {
-        static int Main(string[] args)
+        private static int Main(string[] args)
         {
             if (args == null || args.Length == 0)
             {

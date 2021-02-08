@@ -2,10 +2,10 @@
 
 namespace Level1_3
 {
-    class Program
+    internal static class Program
     {
-        private const double eplison = 1.0 / 2000;
-        static void Main(string[] args)
+        private const double Epsilon = 1.0 / 2000;
+        private static void Main()
         {
             Console.WriteLine("Hello World!");
             Calculate();
@@ -14,12 +14,14 @@ namespace Level1_3
         private static void Calculate()
         {
             Console.WriteLine("Calculating number series, Volokhovych");
-            Console.WriteLine($"Will be calculated:\n Sum from i=1 to infinity of 1/i*(i+1)\n Accuracy epsilon {eplison}");
+            Console.WriteLine($"Will be calculated:\n Sum from i=1 to infinity of 1/i*(i+1)\n Accuracy epsilon {Epsilon}");
+            
             var result = 0.0;
-            for (var i = 1; i < Single.PositiveInfinity; i++)
+            
+            for (var i = 1; i < float.PositiveInfinity; i++)
             {
                 var element = 1.0 / (i * (i + 1.0));
-                if(element>eplison)
+                if(element>Epsilon)
                     result += element;
                 else
                     break;

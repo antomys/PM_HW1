@@ -5,6 +5,16 @@ using System.Security.AccessControl;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
 
+/*
+ * EXTRA COMMAND! : "forfeit" - считаеться как неверный ввод
+Не обрабатываеться неверный ввод в рендж, если ввести символы
+(-4 балла)
+Рекомендации, которые не снизили баллы:
+Можно ввести цифру, которая не попадает в рендж
+ */
+
+//todo:bugfix
+
 namespace Level2_4
 {
     class Program

@@ -1,23 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using Microsoft.Win32;
-
-namespace Level2_1
+﻿namespace Level2_1
 {
-    class Program
+    using System;
+    using System.Collections.Generic;
+
+    internal static class Program
     {
-        private static Dictionary<Int32, String> game_cache = new Dictionary<Int32, string>();
-        private static Dictionary<Int32, String> options = new Dictionary<Int32, string>(3)
+        private static readonly Dictionary<int, string> GameCache = new();
+        private static readonly Dictionary<int, string> Options = new(3)
         {
             {1, "rock"},
             {2, "paper"},
             {3, "scissors"}
         };
-        private static readonly Random _random = new Random();
-        private static int gameID = 0;
         
-        static void Main()
+        private static readonly Random Random = new();
+        private static int _gameId;
+        
+        private static void Main()
         {
             Console.WriteLine("Rock,Paper,Scissors game. Vokokhovych");
             Calculate();
@@ -40,12 +39,13 @@ namespace Level2_1
         {
             var option = "";
             Commands();
+            
             while (option !="exit")
             {
                 option = Console.In.ReadLine();
                 if (option == null)
                 {
-                    Console.WriteLine("Error, try again");
+                    Console.WriteLine("\n**Error, try again**\n");
                     Commands();
                     Calculate();
                 }
@@ -53,76 +53,62 @@ namespace Level2_1
                 {
                     option = option.ToLower();
                 }
-                var computerOption = "";
-                string output = "";
+                
+                string computerOption;
+                var output = "";
+                
                 switch (option)
                 {
                     case "exit":
-                        foreach(var pair in game_cache)
-                            Console.WriteLine($"Game {pair.Key} {pair.Value}");
+                        foreach(var (key, value) in GameCache)
+                            Console.WriteLine($"Game {key} {value}");
                         Environment.Exit(0);
                         break;
                     case "help":
                         Help();
                         break;
                     case "rock":
-                        computerOption = options[_random.Next(1, 4)];
-                        gameID++;
-                        if (computerOption == "rock")
+                        computerOption = Options[Random.Next(1, 4)];
+                        _gameId++;
+                        output = computerOption switch
                         {
-                            output = $"User:{option} = {computerOption} : Computer. DRAW";
-                        } else if (computerOption == "paper")
-                        {
-                            output = $"User:{option} < {computerOption} : Computer. Computer Wins";
-                        }
-                        else
-                        {
-                            output = $"User:{option} > {computerOption} : Computer. User Wins";
-                        }
-                        game_cache.Add(gameID,output);
+                            "rock" => $"User:{option} = {computerOption} : Computer. DRAW",
+                            "paper" => $"User:{option} < {computerOption} : Computer. Computer Wins",
+                            _ => $"User:{option} > {computerOption} : Computer. User Wins"
+                        };
+                        GameCache.Add(_gameId,output);
                         break;
+                    
                     case "paper":
-                        computerOption = options[_random.Next(1, 4)];
-                        gameID++;
-                        if (computerOption == "paper")
+                        computerOption = Options[Random.Next(1, 4)];
+                        _gameId++;
+                        output = computerOption switch
                         {
-                            output = $"User:{option} = {computerOption} : Computer. DRAW";
-                        } else if (computerOption == "rock")
-                        {
-                            output = $"User:{option} > {computerOption} : Computer. User Wins";
-                        }
-                        else
-                        {
-                            output = $"User:{option} < {computerOption} : Computer. Computer Wins";
-                        }
-                        game_cache.Add(gameID,output);
+                            "paper" => $"User:{option} = {computerOption} : Computer. DRAW",
+                            "rock" => $"User:{option} > {computerOption} : Computer. User Wins",
+                            _ => $"User:{option} < {computerOption} : Computer. Computer Wins"
+                        };
+                        GameCache.Add(_gameId,output);
                         break;
                     case "scissors":
-                        computerOption = options[_random.Next(1, 4)];
-                        gameID++;
-                        if (computerOption == "scissors")
+                        computerOption = Options[Random.Next(1, 4)];
+                        _gameId++;
+                        output = computerOption switch
                         {
-                            output = $"User:{option} = {computerOption} : Computer. DRAW";
-                        } else if (computerOption == "paper")
-                        {
-                            output = $"User:{option} > {computerOption} : Computer. User Wins";
-                        }
-                        else
-                        {
-                            output = $"User:{option} < {computerOption} : Computer. Computer Wins";
-                        }
-                        game_cache.Add(gameID,output);
+                            "scissors" => $"User:{option} = {computerOption} : Computer. DRAW",
+                            "paper" => $"User:{option} > {computerOption} : Computer. User Wins",
+                            _ => $"User:{option} < {computerOption} : Computer. Computer Wins"
+                        };
+                        GameCache.Add(_gameId,output);
                         break;
+                    
                     default:
                         Console.WriteLine("Error! Try again");
                         Calculate();
                         break;
                 }
-
                 Console.WriteLine(output);
             }
-            
         }
-
     }
 }
