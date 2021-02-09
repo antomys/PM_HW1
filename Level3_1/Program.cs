@@ -6,18 +6,17 @@ using System.Text.RegularExpressions;
 /*
  * Нет обработки неверного ввода
 Выходит из программы, после окончания одного выражения,а не после команды выхода
-2x3 / 2 \ 3 - не расчитываються
--3--2 - не расчитыаються в командом режиме
+2x3 / 2 \ 3 - не расчитываются
+-3--2 - не расчитываются в командом режиме
  */
 
 //todo:bugfix
 
 namespace Level3_1
 {
-
-    public class Program
+    internal static class Program
     {
-        public static void Help()
+        private static void Help()
         {
             Console.WriteLine("This is simple calculator. Input without spaces.\nAvailable commands:\n" +
                               "1. + Example: 5+2 3+2\n" +
@@ -29,7 +28,8 @@ namespace Level3_1
                               "7. ! Unary bitwise. ONLY one number. Ex: 5!, 24!\n" +
                               "8. Echo mode\n");
         }
-        static int Main(string[] args)
+
+        private static int Main(string[] args)
         {
             if (args == null || args.Length == 0)
             {
@@ -43,8 +43,8 @@ namespace Level3_1
                                       "help - shows rules and available operations. GLHF!\n");
                     
 
-                        List<double> numbers = new List<double>();
-                        List<string> operations = new List<string>();
+                        var numbers = new List<double>();
+                        var operations = new List<string>();
                         var expr = Console.In.ReadLine();
                         if (expr.ToLower() == "exit")
                             Environment.Exit(0);
@@ -57,9 +57,9 @@ namespace Level3_1
                             } while (expr == "help");
                         }
                         InputNumbers(numbers, expr);
-                        foreach (var VARIABLE in numbers)
+                        foreach (var variable in numbers)
                         {
-                            expr = expr.Replace(VARIABLE.ToString(), "");
+                            expr = expr.Replace(variable.ToString(), "");
                         }
 
                         InputOperators(operations, expr);

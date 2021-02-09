@@ -1,61 +1,58 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Text.RegularExpressions;
-using Microsoft.Win32;
-
-/*
- * EXTRA COMMAND! : "forfeit" - считаеться как неверный ввод
-Не обрабатываеться неверный ввод в рендж, если ввести символы
-(-4 балла)
-Рекомендации, которые не снизили баллы:
-Можно ввести цифру, которая не попадает в рендж
- */
-
-//todo:bugfix
-
-namespace Level2_4
+﻿namespace Level2_4
 {
-    class Program
+    using System;
+    using System.Diagnostics;
+    using System.Text.RegularExpressions;
+    using System.Collections.Generic;
+    internal static class Program
     {
         private const string StopWord = "exit";
-        private static Random _random = new Random();
-        private static int score;
-        static void Main()
+        private static readonly Random Random = new();
+        private static void Main()
         {
             Console.WriteLine("More or Less game, Volokhovych");
-            int[] input = Input();
+            var input = Input();
             //Calculate(range);
         }
 
-        private static int[] Input()
+        private static IEnumerable<int> Input()
         {
             long value;
             long value1;
-            var input = "";
-            string[] tokens;
-            //string[] tokens = input.Split(',');
+            string? input;
+            var tokens = Array.Empty<string>();
+            
             do
             {
-                Console.WriteLine("Please input range between 0 and 1.000.000 in format\n[NUMBER],[NUMBER]\nEnter: ");
-                 input = Console.ReadLine();
-                 if(input.ToLower() == StopWord)
-                     Environment.Exit(1);
-                 else if (input.ToLower() == "rules")
+                while (true)
+                {
+                    Console.WriteLine("Please input range between 0 and 1.000.000 in format\n[NUMBER],[NUMBER]\nEnter: ");
+                    input = Console.ReadLine();
+                    if(input == null)
+                        continue;
+                    break;
+                }
+                switch (input.ToLower())
                  {
-                     Rules();
-                     input = Console.ReadLine();
+                     case StopWord:
+                         Environment.Exit(0);
+                         break;
+                     case "rules":
+                         Rules();
+                         input = Console.ReadLine();
+                         break;
                  }
                      
-                 tokens = input.Split(',');
-                 Int64.TryParse(tokens[0], out value);
-                 Int64.TryParse(tokens[1], out value1);
+                 tokens = input?.Split(',');
+                 
+                 long.TryParse(tokens[0], out value);
+                 long.TryParse(tokens[1], out value1);
+                 
             }
-            while (Regex.Matches(input, @"[a-zA-Z-?`\-+*/{}|.<>]").Count > 0 || tokens.Length > 2 || value < 0 || value > 1000000
+            while (Regex.Matches(input ?? string.Empty, @"[a-zA-Z-?`\-+*/{}|.<>]").Count > 0 || tokens.Length > 2 || value < 0 || value > 1000000
                                   || value1 > 1000000 || value > value1);
             
-            int[] range = Array.ConvertAll(tokens, int.Parse);
+            var range = Array.ConvertAll(tokens, int.Parse);
             Calculate(range);
             return range;
         }
@@ -68,41 +65,48 @@ namespace Level2_4
                               "are lower (less).\n");
         }
 
-        private static void Calculate(int[] range)
+        private static void Calculate(IReadOnlyList<int> range)
         {
-            Stopwatch stopwatch = new Stopwatch();
+            var stopwatch = new Stopwatch();
             stopwatch.Start();
-            var computerValue = _random.Next(range[0], range[1]);
-            var sumrange = 0;
+            var computerValue = Random.Next(range[0], range[1]);
+            var sumRange = 0;
             var fails = 0;
+            
             if (range[0] == 0)
-                sumrange = range[1] + 1;
+                sumRange = range[1] + 1;
             else
             {
-                sumrange = range[1] - range[0];
+                sumRange = range[1] - range[0];
             }
-            int input = 0;
+            
+            var input = 0;
             do
             {
-                Console.WriteLine("EXTRA COMMAND! : \"forfeit\"\nInput your guess: ");
+                Console.WriteLine("\nInput your guess: ");
+                
                 var userInput = Console.In.ReadLine();
-                if(userInput.ToLower() == StopWord)
-                    Environment.Exit(1);
-                else if (userInput.ToLower() =="rules")
-                    Rules();
+                if(userInput == null)
+                    continue;
+                
+                switch (userInput.ToLower())
+                {
+                    case StopWord:
+                        return;
+                    case "rules":
+                        Rules();
+                        break;
+                }
+                
                 if (Regex.Matches(userInput, @"[a-zA-Z-?`\-+*/{}|.<>]").Count > 0)
                 {
                     Console.WriteLine("Wrong input!");
                 }
-                else if (userInput.ToLower() == "forfeit")
-                {
-                    stopwatch.Stop();
-                    Console.WriteLine($"Sounds of sad trombone... You have 0 points.\nYou struggled for {stopwatch.ElapsedMilliseconds} ms");
-                    Environment.Exit(1);
-                }
+                
                 else
                 {
-                    Int32.TryParse(userInput, out input);
+                    int.TryParse(userInput, out input);
+                    
                     if (input < computerValue)
                     {
                         fails++;
@@ -110,37 +114,38 @@ namespace Level2_4
                         //todo: score counter
                     }
 
-                    if (input > computerValue)
-                    {
-                        fails++;
-                        Console.WriteLine("Too much!");
-                        //todo: score counter
-                    }
+                    if (input <= computerValue) continue;
+                    
+                    fails++;
+                    Console.WriteLine("Too much!");
                 }
-            } while (input != computerValue);
+            } 
+            while (input != computerValue);
+            
             stopwatch.Stop();
-            double score = 100.0*(PowerofTwo(sumrange) - fails)/PowerofTwo(sumrange);
+
+            var powerSum = PowerOfTwo(sumRange);
+            var score = 100.0*(powerSum - fails)/powerSum;
+            
             Console.WriteLine($"You guessed! It was {input}\n" +
                               $"Your scored {Math.Round(score,MidpointRounding.AwayFromZero)}\n" +
                               $"And it took you {fails} times to fail, {fails+1}th try is right!\n" +
                               $"Time in game: {stopwatch.ElapsedMilliseconds}ms.");
         }
 
-        private static int PowerofTwo(int range)
+        private static int PowerOfTwo(int range)
         {
-            int power = 0;
+            var power = 0;
             var t = double.MaxValue;
 
-            for (int i = 0; i < range; i++)
+            for (var i = 0; i < range; i++)
             {
                 var value = Math.Pow(2, i);
-                double a = Math.Abs(Math.Abs(range) - Math.Abs(value));
+                var a = Math.Abs(Math.Abs(range) - Math.Abs(value));
 
-                if (a < t)
-                {
-                    power = i;
-                    t = a;
-                }
+                if (!(a < t)) continue;
+                power = i;
+                t = a;
             }
 
             return power;
